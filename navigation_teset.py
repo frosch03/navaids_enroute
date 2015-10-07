@@ -4,12 +4,6 @@ import numpy as np
 import xml.etree.ElementTree as ET
 from itertools import chain
 
-# N 48 32.8 E 008 56.7
-# N 48 29.0 E 008 56.8
-# N 48 28.6 E 008 44.1
-# N 48 51.6 E 008 40.2
-# N 48 51.8 E 009 13.5
-
 
 def convToDegrees(old):
     direction = {'N': 1, 'S': -1, 'E': 1, 'W': -1}
@@ -112,12 +106,6 @@ vors = map(lambda n: ((aipGetId(n), aipGetFrequency(n)), aipGetLatLon(n)), vor_n
 ndb_navaids = root[0].findall("./*[@TYPE='NDB']")
 ndbs = map(lambda n: ((aipGetId(n), aipGetFrequency(n)), aipGetLatLon(n)), ndb_navaids)
 
-# def bearingDistances2d(route):
-#     return map(lambda (s, x): map(lambda (s, y): calcBrgDst(x, y), vors), vors)
-
-# vor_bear_dists_2d = map(lambda (s, x): map(lambda (s, y): calcBrgDst(x, y), vors), vors)
-# vor_bear_dists    = list(chain.from_iterable(vor_bear_dists_2d))
-
 
 def getNavaidsEnroute(navaids, route):
     return map(lambda (sr, r):
@@ -132,10 +120,6 @@ def getNearestNavaidsEnroute(navaids, route, count=2):
     return map(lambda naids:
                (uniqFast(sortDistance(naids)))[:count],
                navaids_enroute)
-
-# vors_enroute = map(lambda (sr, r): map(lambda (sn, n): (sr + "->" + sn, calcBrgDst(r, n)), vors), route)
-
-# nearest2vors_enroute = map(lambda vors: (uniqFast(sortDistance(vors)))[:2], vors_enroute)
 
 
 def showNavaidsEnroute(naids, route):
