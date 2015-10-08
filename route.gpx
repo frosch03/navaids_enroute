@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="http://fl95.de/">
+<rte>
+	<name>FL95_EDSP_NACH_EDTQ</name>
+	<rtept lat="48.546666666695" lon="8.9450000000061">
+		<ele>400.2</ele>
+		<name>A_EDSP</name>
+		<cmt>POLTRINGEN</cmt>
+	</rtept>
+	<rtept lat="48.438333333333" lon="8.9533333333333">
+		<name>B_N 48</name>
+		<cmt>N 48 26 3 E 008 57 2</cmt>
+	</rtept>
+	<rtept lat="48.43" lon="8.7283333333333">
+		<name>C_N 48</name>
+		<cmt>N 48 25 8 E 008 43 7</cmt>
+	</rtept>
+	<rtept lat="48.845" lon="8.7083333333333">
+		<name>D_N 48</name>
+		<cmt>N 48 50 7 E 008 42 5</cmt>
+	</rtept>
+	<rtept lat="48.863333333324" lon="9.2249999999727">
+		<ele>282.24</ele>
+		<name>E_EDTQ</name>
+		<cmt>PATTONVILLE</cmt>
+	</rtept>
+</rte>
+</gpx>
