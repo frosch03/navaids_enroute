@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.7
 # -*- coding: latin-1 -*-
 
 import sys
@@ -47,11 +47,14 @@ def sortBearing(brgdsts):
 
 
 def bearing((lat1, lon1), (lat2, lon2)):
-    return np.fmod((   360
-                     + np.degrees(np.arctan2( np.sin(np.radians(lon2-lon1))*np.cos(np.radians(lat2))
-                                            ,   (np.cos(np.radians(lat1))*np.sin(np.radians(lat2)))
-                                              - (np.sin(np.radians(lat1))*np.cos(np.radians(lat2))*np.cos(np.radians(lon2-lon1))))))
-                   , 360)
+    phi1 = np.radians(lat1)
+    phi2 = np.radians(lat2)
+    dlbd = np.radians(lon2-lon1)
+    x1 = np.sin(dlbd)*np.cos(phi2)
+    x2 = (np.cos(phi1)*np.sin(phi2)) -\
+         (np.sin(phi1)*np.cos(phi2)*np.cos(dlbd))
+    brg = np.degrees(np.arctan2(x1, x2))
+    return np.fmod((360 + brg), 360)
 
 
 def distance((lat1, lon1), (lat2, lon2)):
@@ -69,6 +72,12 @@ def distance((lat1, lon1), (lat2, lon2)):
     return d
 
 
+def calcBrgDst((lat1, lon1), (lat2, lon2)):
+    brng = bearing((lat1, lon1), (lat2, lon2))
+    dist = distance((lat1, lon1), (lat2, lon2))
+    return (brng, dist)
+
+
 def aipGetLatLon(navaid):
     lat = float(navaid.find('GEOLOCATION/LAT').text)
     lon = float(navaid.find('GEOLOCATION/LON').text)
@@ -77,12 +86,6 @@ def aipGetLatLon(navaid):
 
 def aipGetId(navaid):
     return (navaid.find('ID').text)
-
-
-def calcBrgDst((lat1, lon1), (lat2, lon2)):
-    brng = bearing((lat1, lon1), (lat2, lon2))
-    dist = distance((lat1, lon1), (lat2, lon2))
-    return (brng, dist)
 
 
 def aipGetFrequency(navaid):
@@ -97,30 +100,6 @@ def gpxGetLatLon(pt):
 
 def gpxGetName(pt):
     return (pt.findall("{http://www.topografix.com/GPX/1/1}name")[0].text)
-
-
-if len(sys.argv) <= 2:
-    print "Usage:"
-    print str(sys.argv[0]) + " <openaip navaid file> <.gpx route file>"
-    exit()
-
-# route_tree = ET.parse('route.gpx')
-route_tree = ET.parse(sys.argv[2])
-route_root = route_tree.getroot()
-route_ = route_root[0].findall("{http://www.topografix.com/GPX/1/1}rtept")
-route = map(lambda pt: (gpxGetName(pt), gpxGetLatLon(pt)), route_)
-
-# navaids_tree = ET.parse('openaip_navaid_germany_de.aip')
-navaids_tree = ET.parse(sys.argv[1])
-navaids_root = navaids_tree.getroot()
-vor_navaids = navaids_root[0].findall("./*[@TYPE='VOR']") \
-              + navaids_root[0].findall("./*[@TYPE='DVOR']") \
-              + navaids_root[0].findall("./*[@TYPE='DVOR-DME']") \
-              + navaids_root[0].findall("./*[@TYPE='VORTAC']")
-vors = map(lambda n: ((aipGetId(n), aipGetFrequency(n)), aipGetLatLon(n)), vor_navaids)
-
-ndb_navaids = navaids_root[0].findall("./*[@TYPE='NDB']")
-ndbs = map(lambda n: ((aipGetId(n), aipGetFrequency(n)), aipGetLatLon(n)), ndb_navaids)
 
 
 def getNavaidsEnroute(navaids, route):
@@ -149,22 +128,27 @@ def showNavaidsEnroute(naids, route):
         print "--"
 
 
-showNavaidsEnroute(getNearestNavaidsEnroute(vors, route), route)
+if len(sys.argv) <= 2:
+    print "Usage:"
+    print str(sys.argv[0]) + " <openaip navaid file> <.gpx route file>"
+    exit()
 
-# <NAVAID TYPE="VOR">
-#   <COUNTRY>DE</COUNTRY>
-#   <NAME>BAYREUTH</NAME>
-#   <ID>BAY</ID>
-#   <GEOLOCATION>
-#     <LAT>49.9866676331</LAT>
-#     <LON>11.6383333206</LON>
-#     <ELEV UNIT="M">487</ELEV>
-#   </GEOLOCATION>
-#   <RADIO>
-#     <FREQUENCY>110.06</FREQUENCY>
-#   </RADIO>
-#   <PARAMS>
-#     <DECLINATION>2.47592</DECLINATION>
-#     <ALIGNEDTOTRUENORTH>FALSE</ALIGNEDTOTRUENORTH>
-#   </PARAMS>
-# </NAVAID>
+# route_tree = ET.parse('route.gpx')
+route_tree = ET.parse(sys.argv[2])
+route_root = route_tree.getroot()
+route_ = route_root[0].findall("{http://www.topografix.com/GPX/1/1}rtept")
+route = map(lambda pt: (gpxGetName(pt), gpxGetLatLon(pt)), route_)
+
+# navaids_tree = ET.parse('openaip_navaid_germany_de.aip')
+navaids_tree = ET.parse(sys.argv[1])
+navaids_root = navaids_tree.getroot()
+vor_navaids = navaids_root[0].findall("./*[@TYPE='VOR']") \
+              + navaids_root[0].findall("./*[@TYPE='DVOR']") \
+              + navaids_root[0].findall("./*[@TYPE='DVOR-DME']") \
+              + navaids_root[0].findall("./*[@TYPE='VORTAC']")
+vors = map(lambda n: ((aipGetId(n), aipGetFrequency(n)), aipGetLatLon(n)), vor_navaids)
+
+ndb_navaids = navaids_root[0].findall("./*[@TYPE='NDB']")
+ndbs = map(lambda n: ((aipGetId(n), aipGetFrequency(n)), aipGetLatLon(n)), ndb_navaids)
+
+showNavaidsEnroute(getNearestNavaidsEnroute(vors, route), route)
